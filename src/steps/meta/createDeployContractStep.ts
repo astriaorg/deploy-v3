@@ -46,9 +46,6 @@ export default function createDeployContractStep({
       console.log("current account nonce", nonce)
       console.log("deployer address", await config.signer.getAddress())
 
-      // let deployTx = factory.getDeployTransaction(...constructorArgs, { gasPrice: config.gasPrice, nonce: nonce })
-      // let estimatedGas = await provider.estimateGas(deployTx)
-
       let contract: Contract
       try {
         contract = await factory.deploy(...constructorArgs, { gasPrice: config.gasPrice, nonce: nonce })
