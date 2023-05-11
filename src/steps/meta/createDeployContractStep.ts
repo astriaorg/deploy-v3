@@ -1,4 +1,5 @@
 import { Contract, ContractInterface, ContractFactory } from '@ethersproject/contracts'
+import { JsonRpcProvider } from "@ethersproject/providers";
 import { MigrationConfig, MigrationState, MigrationStep } from '../../migrations'
 import linkLibraries from '../../util/linkLibraries'
 
@@ -38,12 +39,42 @@ export default function createDeployContractStep({
         config.signer
       )
 
+      const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+      let currBlock = await provider.getBlockNumber()
+
+      let nonce = await provider.getTransactionCount(config.signer.getAddress())
+      console.log("current account nonce", nonce)
+      console.log("deployer address", await config.signer.getAddress())
+
+      // let deployTx = factory.getDeployTransaction(...constructorArgs, { gasPrice: config.gasPrice, nonce: nonce })
+      // let estimatedGas = await provider.estimateGas(deployTx)
+
       let contract: Contract
       try {
-        contract = await factory.deploy(...constructorArgs, { gasPrice: config.gasPrice })
+        contract = await factory.deploy(...constructorArgs, { gasPrice: config.gasPrice, nonce: nonce })
       } catch (error) {
         console.error(`Failed to deploy ${contractName}`)
         throw error
+      }
+
+      // wait for transaction receipt
+      while (true) {
+        console.log("waiting for transaction")
+        let receipt = await provider.getTransactionReceipt(contract.deployTransaction.hash)
+        if (receipt && receipt.contractAddress) {
+          break
+        }
+        await stall(1000)
+      }
+
+      // wait for next block
+      while (true) {
+        console.log("waiting for block")
+        let block = await provider.getBlockNumber()
+        if (block > currBlock) {
+          break
+        }
+        await stall(1000)
       }
 
       state[key] = contract.address
@@ -59,4 +90,10 @@ export default function createDeployContractStep({
       return [{ message: `Contract ${contractName} was already deployed`, address: state[key] }]
     }
   }
+}
+
+function stall(duration: number): Promise<void> {
+  return new Promise((resolve) => {
+      setTimeout(resolve, duration);
+  });
 }
