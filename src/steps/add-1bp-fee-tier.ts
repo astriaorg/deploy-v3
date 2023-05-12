@@ -1,7 +1,7 @@
 import UniswapV3Factory from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationStep } from '../migrations'
+import { MigrationStep, stall } from '../migrations'
 
 const ONE_BP_FEE = 100
 const ONE_BP_TICK_SPACING = 1
@@ -48,10 +48,4 @@ export const ADD_1BP_FEE_TIER: MigrationStep = async (state, { signer, gasPrice 
       hash: tx.hash,
     },
   ]
-}
-
-function stall(duration: number): Promise<void> {
-  return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-  });
 }

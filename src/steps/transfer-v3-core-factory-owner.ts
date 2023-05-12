@@ -1,7 +1,7 @@
 import UniswapV3Factory from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationStep } from '../migrations'
+import { MigrationStep, stall } from '../migrations'
 
 export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { signer, gasPrice, ownerAddress }) => {
   if (state.v3CoreFactoryAddress === undefined) {
@@ -53,10 +53,4 @@ export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { sig
       hash: tx.hash,
     },
   ]
-}
-
-function stall(duration: number): Promise<void> {
-  return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-  });
 }

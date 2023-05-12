@@ -1,6 +1,6 @@
 import { ContractInterface, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationState, MigrationStep } from '../../migrations'
+import { MigrationState, MigrationStep, stall } from '../../migrations'
 
 export default function createDeployLibraryStep({
   key,
@@ -55,10 +55,4 @@ export default function createDeployLibraryStep({
       return [{ message: `Library ${contractName} was already deployed`, address: state[key] }]
     }
   }
-}
-
-function stall(duration: number): Promise<void> {
-  return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-  });
 }

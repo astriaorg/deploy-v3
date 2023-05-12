@@ -29,3 +29,9 @@ export type MigrationConfig = {
 }
 
 export type MigrationStep = GenericMigrationStep<MigrationState, MigrationConfig, StepOutput[]>
+
+export async function stall(duration: number): Promise<void> {
+  return new Promise((resolve) => {
+      setTimeout(resolve, duration);
+  });
+}

@@ -1,6 +1,6 @@
 import { Contract, ContractInterface, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationConfig, MigrationState, MigrationStep } from '../../migrations'
+import { MigrationConfig, MigrationState, MigrationStep, stall } from '../../migrations'
 import linkLibraries from '../../util/linkLibraries'
 
 type ConstructorArgs = (string | number | string[] | number[])[]
@@ -87,10 +87,4 @@ export default function createDeployContractStep({
       return [{ message: `Contract ${contractName} was already deployed`, address: state[key] }]
     }
   }
-}
-
-function stall(duration: number): Promise<void> {
-  return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-  });
 }

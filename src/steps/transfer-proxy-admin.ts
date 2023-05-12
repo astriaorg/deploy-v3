@@ -1,7 +1,7 @@
 import ProxyAdmin from '@openzeppelin/contracts/build/contracts/ProxyAdmin.json'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationStep } from '../migrations'
+import { MigrationStep, stall } from '../migrations'
 
 export const TRANSFER_PROXY_ADMIN: MigrationStep = async (state, { signer, gasPrice, ownerAddress }) => {
   if (state.proxyAdminAddress === undefined) {
@@ -42,10 +42,4 @@ export const TRANSFER_PROXY_ADMIN: MigrationStep = async (state, { signer, gasPr
       hash: tx.hash,
     },
   ]
-}
-
-function stall(duration: number): Promise<void> {
-  return new Promise((resolve) => {
-      setTimeout(resolve, duration);
-  });
 }
