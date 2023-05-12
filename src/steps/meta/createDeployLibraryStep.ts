@@ -1,5 +1,6 @@
 import { ContractInterface, ContractFactory } from '@ethersproject/contracts'
-import { MigrationState, MigrationStep } from '../../migrations'
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
 
 export default function createDeployLibraryStep({
   key,
@@ -12,7 +13,18 @@ export default function createDeployLibraryStep({
     if (state[key] === undefined) {
       const factory = new ContractFactory(abi, bytecode, signer)
 
+      const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+      let currBlock = await provider.getBlockNumber()
+
+      let nonce = await provider.getTransactionCount(signer.getAddress())
+      console.log("current account nonce", nonce)
+      console.log("deployer address", await signer.getAddress())
+
       const library = await factory.deploy({ gasPrice })
+    
+      await waitForReceipt(library.deployTransaction.hash, provider)
+      await waitForNextBlock(currBlock, provider)    
+
       state[key] = library.address
 
       return [

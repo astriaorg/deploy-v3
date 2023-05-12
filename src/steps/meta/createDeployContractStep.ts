@@ -1,5 +1,6 @@
 import { Contract, ContractInterface, ContractFactory } from '@ethersproject/contracts'
-import { MigrationConfig, MigrationState, MigrationStep } from '../../migrations'
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { MigrationConfig, MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
 import linkLibraries from '../../util/linkLibraries'
 
 type ConstructorArgs = (string | number | string[] | number[])[]
@@ -38,14 +39,24 @@ export default function createDeployContractStep({
         config.signer
       )
 
+      const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+      let currBlock = await provider.getBlockNumber()
+
+      let nonce = await provider.getTransactionCount(config.signer.getAddress())
+      console.log("current account nonce", nonce)
+      console.log("deployer address", await config.signer.getAddress())
+
       let contract: Contract
       try {
-        contract = await factory.deploy(...constructorArgs, { gasPrice: config.gasPrice })
+        contract = await factory.deploy(...constructorArgs, { gasPrice: config.gasPrice, nonce: nonce })
       } catch (error) {
         console.error(`Failed to deploy ${contractName}`)
         throw error
       }
 
+      await waitForReceipt(contract.deployTransaction.hash, provider)
+      await waitForNextBlock(currBlock, provider)
+      
       state[key] = contract.address
 
       return [

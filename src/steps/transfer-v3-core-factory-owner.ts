@@ -1,6 +1,7 @@
 import UniswapV3Factory from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
 import { Contract } from '@ethersproject/contracts'
-import { MigrationStep } from '../migrations'
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { MigrationStep, waitForNextBlock, waitForReceipt } from '../migrations'
 
 export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { signer, gasPrice, ownerAddress }) => {
   if (state.v3CoreFactoryAddress === undefined) {
@@ -8,6 +9,9 @@ export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { sig
   }
 
   const v3CoreFactory = new Contract(state.v3CoreFactoryAddress, UniswapV3Factory.abi, signer)
+
+  const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+  let currBlock = await provider.getBlockNumber()
 
   const owner = await v3CoreFactory.owner()
   if (owner === ownerAddress)
@@ -22,6 +26,9 @@ export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { sig
   }
 
   const tx = await v3CoreFactory.setOwner(ownerAddress, { gasPrice })
+
+  await waitForReceipt(tx.hash, provider)
+  await waitForNextBlock(currBlock, provider)
 
   return [
     {
