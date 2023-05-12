@@ -56,12 +56,10 @@ export default function deploy({
   initialState: MigrationState
   onStateChange: (newState: MigrationState) => Promise<void>
 }): AsyncGenerator<StepOutput[], void, void> {
-  console.log(numberGasPrice)
-  // const gasPrice =
-  //   typeof numberGasPrice === 'number' ? BigNumber.from(numberGasPrice).mul(BigNumber.from(10).pow(15)) : undefined // convert to wei
-  const gasPrice = BigNumber.from(10).pow(11) // 100 gwei
-  //const gasPrice = BigNumber.from(766198660)
-  console.log("gasPrice", gasPrice)
+  const defaultGasPrice = BigNumber.from(10).pow(11) // 100 gwei
+  const gasPrice =
+    typeof numberGasPrice === 'number' ? BigNumber.from(numberGasPrice).mul(BigNumber.from(10).pow(15)) : defaultGasPrice // convert to wei
+  console.log("using gas price", gasPrice)
 
   return migrate({
     steps: MIGRATION_STEPS,

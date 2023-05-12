@@ -30,8 +30,30 @@ export type MigrationConfig = {
 
 export type MigrationStep = GenericMigrationStep<MigrationState, MigrationConfig, StepOutput[]>
 
-export async function stall(duration: number): Promise<void> {
+async function stall(duration: number): Promise<void> {
   return new Promise((resolve) => {
       setTimeout(resolve, duration);
   });
+}
+
+export async function waitForReceipt(hash: String, provider: any) {
+  while (true) {
+    console.log("waiting for transaction: hash", hash)
+    let receipt = await provider.getTransactionReceipt(hash)
+    if (receipt) {
+      break
+    }
+    await stall(1000)
+  }
+}
+
+export async function waitForNextBlock(currBlock: number, provider: any) {
+  while (true) {
+    console.log("waiting for next block")
+    let block = await provider.getBlockNumber()
+    if (block > currBlock) {
+      break
+    }
+    await stall(1000)
+  }
 }

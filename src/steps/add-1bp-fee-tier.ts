@@ -1,7 +1,7 @@
 import UniswapV3Factory from '@uniswap/v3-core/artifacts/contracts/UniswapV3Factory.sol/UniswapV3Factory.json'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationStep, stall } from '../migrations'
+import { MigrationStep, waitForNextBlock, waitForReceipt } from '../migrations'
 
 const ONE_BP_FEE = 100
 const ONE_BP_TICK_SPACING = 1
@@ -22,25 +22,8 @@ export const ADD_1BP_FEE_TIER: MigrationStep = async (state, { signer, gasPrice 
   }
   const tx = await v3CoreFactory.enableFeeAmount(ONE_BP_FEE, ONE_BP_TICK_SPACING, { gasPrice })
 
-  // wait for transaction receipt
-  while (true) {
-    console.log("waiting for transaction")
-    let receipt = await provider.getTransactionReceipt(tx.hash)
-    if (receipt) {
-      break
-    }
-    await stall(1000)
-  }
-
-  // wait for next block
-  while (true) {
-    console.log("waiting for block")
-    let block = await provider.getBlockNumber()
-    if (block > currBlock) {
-      break
-    }
-    await stall(1000)
-  }
+  await waitForReceipt(tx.hash, provider)
+  await waitForNextBlock(currBlock, provider)
 
   return [
     {

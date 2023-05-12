@@ -1,6 +1,6 @@
 import { Contract, ContractInterface, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationConfig, MigrationState, MigrationStep, stall } from '../../migrations'
+import { MigrationConfig, MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
 import linkLibraries from '../../util/linkLibraries'
 
 type ConstructorArgs = (string | number | string[] | number[])[]
@@ -54,26 +54,9 @@ export default function createDeployContractStep({
         throw error
       }
 
-      // wait for transaction receipt
-      while (true) {
-        console.log("waiting for transaction")
-        let receipt = await provider.getTransactionReceipt(contract.deployTransaction.hash)
-        if (receipt && receipt.contractAddress) {
-          break
-        }
-        await stall(1000)
-      }
-
-      // wait for next block
-      while (true) {
-        console.log("waiting for block")
-        let block = await provider.getBlockNumber()
-        if (block > currBlock) {
-          break
-        }
-        await stall(1000)
-      }
-
+      await waitForReceipt(contract.deployTransaction.hash, provider)
+      await waitForNextBlock(currBlock, provider)
+      
       state[key] = contract.address
 
       return [

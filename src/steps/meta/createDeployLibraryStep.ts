@@ -1,6 +1,6 @@
 import { ContractInterface, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { MigrationState, MigrationStep, stall } from '../../migrations'
+import { MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
 
 export default function createDeployLibraryStep({
   key,
@@ -22,25 +22,8 @@ export default function createDeployLibraryStep({
 
       const library = await factory.deploy({ gasPrice })
     
-      // wait for transaction receipt
-      while (true) {
-        console.log("waiting for transaction")
-        let receipt = await provider.getTransactionReceipt(library.deployTransaction.hash)
-        if (receipt && receipt.contractAddress) {
-          break
-        }
-        await stall(1000)
-      }
-
-      // wait for next block
-      while (true) {
-        console.log("waiting for block")
-        let block = await provider.getBlockNumber()
-        if (block > currBlock) {
-          break
-        }
-        await stall(1000)
-      }
+      await waitForReceipt(library.hash, provider)
+      await waitForNextBlock(currBlock, provider)    
 
       state[key] = library.address
 
