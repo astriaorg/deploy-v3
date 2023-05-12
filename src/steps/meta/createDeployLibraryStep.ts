@@ -22,7 +22,7 @@ export default function createDeployLibraryStep({
 
       const library = await factory.deploy({ gasPrice })
     
-      await waitForReceipt(library.hash, provider)
+      await waitForReceipt(library.deployTransaction.hash, provider)
       await waitForNextBlock(currBlock, provider)    
 
       state[key] = library.address
