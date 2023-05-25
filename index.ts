@@ -5,6 +5,7 @@ import { AddressZero } from '@ethersproject/constants'
 import { getAddress } from '@ethersproject/address'
 import fs from 'fs'
 import deploy from './src/deploy'
+import { SettingsProvider } from './src/util/settingsProvider'
 import { MigrationState } from './src/migrations'
 import { asciiStringToBytes32 } from './src/util/asciiStringToBytes32'
 import { version } from './package.json'
@@ -89,6 +90,12 @@ try {
   console.error('Invalid owner address', (error as Error).message)
   process.exit(1)
 }
+
+// added this because the -j flag was not being respected previously
+const settingsProvider = SettingsProvider.getInstance();
+settingsProvider.setSettings({
+  jsonRpcUrl: program.jsonRpc,
+})
 
 const wallet = new Wallet(program.privateKey, new JsonRpcProvider({ url: url.href }))
 

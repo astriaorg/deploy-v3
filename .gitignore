@@ -106,3 +106,6 @@ dist
 .tern-port
 
 .nvmrc
+
+# contract deployment artifacts
+state.json

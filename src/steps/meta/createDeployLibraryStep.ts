@@ -1,6 +1,7 @@
 import { ContractInterface, ContractFactory } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
+import { SettingsProvider } from '../../util/settingsProvider'
 
 export default function createDeployLibraryStep({
   key,
@@ -13,7 +14,8 @@ export default function createDeployLibraryStep({
     if (state[key] === undefined) {
       const factory = new ContractFactory(abi, bytecode, signer)
 
-      const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+      const settings = SettingsProvider.getInstance().getSettings()
+      const provider = new JsonRpcProvider({ url: settings.jsonRpcUrl })
       let currBlock = await provider.getBlockNumber()
 
       let nonce = await provider.getTransactionCount(signer.getAddress())
@@ -21,9 +23,9 @@ export default function createDeployLibraryStep({
       console.log("deployer address", await signer.getAddress())
 
       const library = await factory.deploy({ gasPrice })
-    
+
       await waitForReceipt(library.deployTransaction.hash, provider)
-      await waitForNextBlock(currBlock, provider)    
+      await waitForNextBlock(currBlock, provider)
 
       state[key] = library.address
 

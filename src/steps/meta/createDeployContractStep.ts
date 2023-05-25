@@ -2,6 +2,7 @@ import { Contract, ContractInterface, ContractFactory } from '@ethersproject/con
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { MigrationConfig, MigrationState, MigrationStep, waitForNextBlock, waitForReceipt } from '../../migrations'
 import linkLibraries from '../../util/linkLibraries'
+import { SettingsProvider } from '../../util/settingsProvider'
 
 type ConstructorArgs = (string | number | string[] | number[])[]
 
@@ -39,7 +40,8 @@ export default function createDeployContractStep({
         config.signer
       )
 
-      const provider = new JsonRpcProvider({ url: "http://localhost:8545" }) 
+      const settings = SettingsProvider.getInstance().getSettings()
+      const provider = new JsonRpcProvider({ url: settings.jsonRpcUrl })
       let currBlock = await provider.getBlockNumber()
 
       let nonce = await provider.getTransactionCount(config.signer.getAddress())
@@ -56,7 +58,7 @@ export default function createDeployContractStep({
 
       await waitForReceipt(contract.deployTransaction.hash, provider)
       await waitForNextBlock(currBlock, provider)
-      
+
       state[key] = contract.address
 
       return [
