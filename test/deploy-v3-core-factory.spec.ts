@@ -36,6 +36,7 @@ describe('deploy-v3-core-factory', () => {
             v2CoreFactoryAddress: DUMMY_ADDRESS,
             weth9Address: DUMMY_ADDRESS,
             nativeCurrencyLabelBytes: asciiStringToBytes32('ETH'),
+            jsonRpcUrl: new URL("http://localhost:8545"),
           }
         )
       )
@@ -53,6 +54,7 @@ describe('deploy-v3-core-factory', () => {
             v2CoreFactoryAddress: DUMMY_ADDRESS,
             weth9Address: DUMMY_ADDRESS,
             nativeCurrencyLabelBytes: asciiStringToBytes32('ETH'),
+            jsonRpcUrl: new URL("http://localhost:8545"),
           }
         )
       )
@@ -73,6 +75,7 @@ describe('deploy-v3-core-factory', () => {
               v2CoreFactoryAddress: DUMMY_ADDRESS,
               weth9Address: DUMMY_ADDRESS,
               nativeCurrencyLabelBytes: asciiStringToBytes32('ETH'),
+              jsonRpcUrl: new URL("http://localhost:8545"),
             }
           )
         )

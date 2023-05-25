@@ -26,13 +26,14 @@ export type MigrationConfig = {
   nativeCurrencyLabelBytes: string
   v2CoreFactoryAddress: string
   ownerAddress: string
+  jsonRpcUrl: URL
 }
 
 export type MigrationStep = GenericMigrationStep<MigrationState, MigrationConfig, StepOutput[]>
 
 async function stall(duration: number): Promise<void> {
   return new Promise((resolve) => {
-      setTimeout(resolve, duration);
+    setTimeout(resolve, duration);
   });
 }
 

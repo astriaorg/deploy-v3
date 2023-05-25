@@ -2,9 +2,8 @@ import ProxyAdmin from '@openzeppelin/contracts/build/contracts/ProxyAdmin.json'
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { MigrationStep, waitForReceipt } from '../migrations'
-import { SettingsProvider } from '../util/settingsProvider'
 
-export const TRANSFER_PROXY_ADMIN: MigrationStep = async (state, { signer, gasPrice, ownerAddress }) => {
+export const TRANSFER_PROXY_ADMIN: MigrationStep = async (state, { signer, gasPrice, ownerAddress, jsonRpcUrl }) => {
   if (state.proxyAdminAddress === undefined) {
     throw new Error('Missing ProxyAdmin')
   }
@@ -24,8 +23,7 @@ export const TRANSFER_PROXY_ADMIN: MigrationStep = async (state, { signer, gasPr
   }
 
   const tx = await proxyAdmin.transferOwnership(ownerAddress, { gasPrice })
-  const settings = SettingsProvider.getInstance().getSettings()
-  const provider = new JsonRpcProvider({ url: settings.jsonRpcUrl })
+  const provider = new JsonRpcProvider({ url: jsonRpcUrl.toString() })
   await waitForReceipt(tx.hash, provider)
 
   return [

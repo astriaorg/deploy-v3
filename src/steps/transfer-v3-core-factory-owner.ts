@@ -2,17 +2,15 @@ import UniswapV3Factory from '@uniswap/v3-core/artifacts/contracts/UniswapV3Fact
 import { Contract } from '@ethersproject/contracts'
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { MigrationStep, waitForNextBlock, waitForReceipt } from '../migrations'
-import { SettingsProvider } from '../util/settingsProvider'
 
-export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { signer, gasPrice, ownerAddress }) => {
+export const TRANSFER_V3_CORE_FACTORY_OWNER: MigrationStep = async (state, { signer, gasPrice, ownerAddress, jsonRpcUrl }) => {
   if (state.v3CoreFactoryAddress === undefined) {
     throw new Error('Missing UniswapV3Factory')
   }
 
   const v3CoreFactory = new Contract(state.v3CoreFactoryAddress, UniswapV3Factory.abi, signer)
 
-  const settings = SettingsProvider.getInstance().getSettings()
-  const provider = new JsonRpcProvider({ url: settings.jsonRpcUrl })
+  const provider = new JsonRpcProvider({ url: jsonRpcUrl.toString() })
   let currBlock = await provider.getBlockNumber()
 
   const owner = await v3CoreFactory.owner()
