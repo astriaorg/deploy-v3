@@ -109,3 +109,6 @@ dist
 
 # contract deployment artifacts
 state.json
+
+# jetbrains
+.idea/
